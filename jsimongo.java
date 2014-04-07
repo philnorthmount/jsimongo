@@ -42,7 +42,9 @@ public class jsimongo{
         String collectionName = myconfiglist.get(2); 
         DBCollection collection = d.getCollection(collectionName);
 
-
+        // get delay in milliseconds
+        String ActDelay = myconfiglist.get(3);
+        int IntActDelay = Integer.valueOf(ActDelay);
 
 
         // System Date
@@ -217,7 +219,7 @@ public class jsimongo{
 
             //This should be adjusted with the original config a value of 1000 will give a 16mins run time equating
             // to 16hrs simulation per entity code per date selected
-            Thread.sleep(1);
+            Thread.sleep(IntActDelay);
         };
         // End of Time period simulation loop
         
