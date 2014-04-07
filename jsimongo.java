@@ -42,8 +42,6 @@ public class jsimongo{
         String collectionName = myconfiglist.get(2); 
         DBCollection collection = d.getCollection(collectionName);
 
-        //System.out.println("Config: "+textUri+":"+DBname+":"+collectionName);
-
 
 
 
@@ -69,12 +67,9 @@ public class jsimongo{
         ArrayList<String> myday = new ArrayList<String>();
         myday = myobj.loadArray("daylist.txt");
 
-        // setup a top level entity based array for multi entity simulations
+        // Setup a top level entity based array for multi entity simulations
         ArrayList<String> myentity = new ArrayList<String>();
         myentity = myobj.loadArray("entitylist.txt");
-
-
-
 
         // Random number object
         Random randomNum = new Random();
@@ -82,7 +77,6 @@ public class jsimongo{
         // Total Product number currently not used
         int TotalPrd = randomNum.nextInt(300);
         TotalPrd = TotalPrd + 700;
-
         
         // Initialise for time period simulation loop
         int hrInd = 61;
@@ -91,7 +85,6 @@ public class jsimongo{
         int strToCheck = 0;
         int totalProducts = 0;
         double totalValueOfProducts = 0;
-
 
         // Toggle the below to display and insert the transactions as required
         boolean showtrans = true;        
@@ -103,7 +96,6 @@ public class jsimongo{
         {
             checkString = checkString + args[ck];
         };
-        //System.out.println("contains: "+checkString);
 
 
         // display transactions flag on runnning jsimongo eg: java jsimongo -d  will NOT display transactions
@@ -113,8 +105,6 @@ public class jsimongo{
             if(checkString.contains("-d")) showtrans = false;
             if(checkString.contains("-i")) inserttrans = false;
         };
-
-        
 
         // loop through days
         for(int i=0; i<myday.size(); i++)
@@ -128,10 +118,7 @@ public class jsimongo{
         totalProducts = 0;
         totalValueOfProducts = 0;
         String actEntity = "";
-        String simDay = "";
-
-        //System.out.println(myday.get(i));
-        
+        String simDay = "";        
 
         // Time period simulation loop
         for(int x = 0; x < 900; x++)
@@ -151,84 +138,79 @@ public class jsimongo{
                 hrInd++;
             };
             
-
-            // Multiple Entity selection
-            // loop through entities
+            // Multiple Entity selection loop through entities
             for(int ee=0; ee<myentity.size(); ee++)
             {
-
                 actEntity = myentity.get(ee); 
 
-            // for loop based upon the above hourly weighting this alows for mutiple product in minute selection            
-            for(int xy = 0; xy < strToCheck; xy++ )
-            {
+                // for loop based upon the above hourly weighting this alows for mutiple product in minute selection            
+                for(int xy = 0; xy < strToCheck; xy++ )
+                {
                 
-                // randomly select what if a product is bought or not currently not used
-                int isPrdBought = randomNum.nextInt(2);
+                    // randomly select what if a product is bought or not currently not used
+                    int isPrdBought = randomNum.nextInt(2);
 
-                // Minute simulation
-                int isBoughtMinute = randomNum.nextInt(59);
-                String isBoughtMinPadded = String.format("%02d", isBoughtMinute);
+                    // Minute simulation
+                    int isBoughtMinute = randomNum.nextInt(59);
+                    String isBoughtMinPadded = String.format("%02d", isBoughtMinute);
 
+                    // randomly sleep for 60/hourly weighting - note this should be additional feature tbc
 
-                // randomly sleep for 60/hourly weighting - note this should be additional feature tbc
+                    // if product bought then randonly select from myproductlist
+                    int prodListLength = myproductlist.size();
+                    int buyProduct = randomNum.nextInt(prodListLength);
 
-                // if product bought then randonly select from myproductlist
-                int prodListLength = myproductlist.size();
-                int buyProduct = randomNum.nextInt(prodListLength);
+                    // get product selection index of product selected
+                    String buyActProduct = myproductlist.get(buyProduct);
 
-                // get product selection index of product selected
-                String buyActProduct = myproductlist.get(buyProduct);
+                    // get price of selected product
+                    String buyActPriceProduct = myproductpricelist.get(buyProduct); 
 
-                // get price of selected product
-                String buyActPriceProduct = myproductpricelist.get(buyProduct); 
+                    // Increment totals for UI Information and output                
+                    totalProducts++;
+                    totalValueOfProducts = totalValueOfProducts + Double.valueOf(buyActPriceProduct);
 
-                // Increment totals for UI Information and output                
-                totalProducts++;
-                totalValueOfProducts = totalValueOfProducts + Double.valueOf(buyActPriceProduct);
+                    // Create simulated time period
+                    simDay = myday.get(i);
+                    String simDateTime = simDay+" "+hrAct+":"+isBoughtMinPadded+":00 GMT 2014";
 
-                // Create simulated time period
-                simDay = myday.get(i);
-                String simDateTime = simDay+" "+hrAct+":"+isBoughtMinPadded+":00 GMT 2014";
-                //System.out.println(simDay);
+                    // Output randomly selected sales values to the console
+                    if(showtrans == true)
+                    {
+                        System.out.println("AZTEC_Code : "+buyActProduct);
+                        System.out.println("Qty_Indicator : -");
+                        System.out.println("Quantity : 1");
+                        System.out.println("STV_Amount : "+buyActPriceProduct);
+                        System.out.println("STV_UOM : ml");
+                        System.out.println("SalesItemTaxes : {Tax_Sign : +}");
+                        System.out.println("SalesItemsTaxesValues : {Tax_Indicator : 1, Tax_Amount 0.00}");
+                        System.out.println("Created_DateTime : "+simDateTime);  // was sysdate
+                        System.out.println("Entity : "+actEntity);                    
 
-                // Output randomly selected sales values to the console
-                if(showtrans == true)
-                {
-                    System.out.println("AZTEC_Code : "+buyActProduct);
-                    System.out.println("Qty_Indicator : -");
-                    System.out.println("Quantity : 1");
-                    System.out.println("STV_Amount : "+buyActPriceProduct);
-                    System.out.println("STV_UOM : ml");
-                    System.out.println("SalesItemTaxes : {Tax_Sign : +}");
-                    System.out.println("SalesItemsTaxesValues : {Tax_Indicator : 1, Tax_Amount 0.00}");
-                    System.out.println("Created_DateTime : "+simDateTime);  // was sysdate
-                    System.out.println("Entity : "+actEntity);                    
+                        // should also output to a log file to be added
+                    };
 
-                    // should also output to a log file to be added
-                };
+                    // Insert JSON into MongoDB
+                    if(inserttrans == true)
+                    {
+                        BasicDBObject b=new BasicDBObject();
+                        b.put("AZTEC_Code",buyActProduct);
+                        b.put("Qty_Indicator","-");
+                        b.put("Quantity","1");
+                        b.put("STV_Amount",buyActPriceProduct);
+                        b.put("STV_UOM","ml");
+                        b.append("SalesItemsTaxes", new BasicDBObject("Tax_Sign","1"));
+                        b.append("SalesItemTaxesValues", new BasicDBObject("Tax_Indicator","+").append("Tax_Amount", "0.00"));                     
+                        b.append("Created_DateTime",simDateTime);
+                        b.append("Entity", actEntity);            
 
-                // Insert JSON into MongoDB
-                if(inserttrans == true)
-                {
-                    BasicDBObject b=new BasicDBObject();
-                    b.put("AZTEC_Code",buyActProduct);
-                    b.put("Qty_Indicator","-");
-                    b.put("Quantity","1");
-                    b.put("STV_Amount",buyActPriceProduct);
-                    b.put("STV_UOM","ml");
-                    b.append("SalesItemsTaxes", new BasicDBObject("Tax_Sign","1"));
-                    b.append("SalesItemTaxesValues", new BasicDBObject("Tax_Indicator","+").append("Tax_Amount", "0.00"));                     
-                    b.append("Created_DateTime",simDateTime);
-                    b.append("Entity", actEntity);            
-
-                    // Insert the JSON object into the chosen collection
-                    collection.insert(b);
-                };
+                        // Insert the JSON object into the chosen collection
+                        collection.insert(b);
+                    };
 
 
-            };
-            // end of for loop based
+                 };
+                // End of for loop based upon the above hourly weighting
 
             };
             // end of entity for loop based            
@@ -253,6 +235,8 @@ public class jsimongo{
     	}
 
 	}
+    // end of main
+
 
 
     // loadArray Method loads a file into an array and returns the array
