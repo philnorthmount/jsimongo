@@ -1,0 +1,5 @@
+mongodb://ilabuser:supers3cur3@ds031359.mongolab.com:31359/eatest
+eatest
+sales
+1000
+
